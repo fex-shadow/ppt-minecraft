@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Minecraft - Editable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Verdana', 'Arial', sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* ========================================== */
+        /* 🎬 TRANSICIÓN DE EXPERIENCIA MINECRAFT */
+        /* ========================================== */
+        .transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        .transition-overlay.active {
+            display: flex;
+        }
+
+        .transition-overlay .trans-video {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            width: 10%;
+            height: auto;
+            max-width: 600px;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            object-fit: contain;
+        }
+
+        .transition-overlay .trans-overlay-dark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .transition-overlay .trans-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .transition-overlay .numero-xp {
+            color: lime;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 0 8px lime, 2px 2px 4px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+        }
+
+        .transition-overlay .siguente-nivel {
+            color: lime;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 8px lime, 2px 2px 4px rgba(0,0,0,0.8);
+            animation: parpadeo 1s ease-in-out;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .transition-overlay .barra-contenedor {
+            width: 300px;
+            height: 9px;
+            background-color: transparent;
+            position: relative;
+        }
+
+        .transition-overlay .barra-carga {
+            height: 50%;
+            width: 0%;
+            background-image: repeating-linear-gradient(
+                90deg,
+                lime 0px,
+                lime 8px,
+                transparent 8px,
+                transparent 10px
+            );
+            box-shadow: 0 0 5px lime;
+            transition: width 0.1s linear;
+        }
+
+        /* ========================================== */
+        /* 🎯 UI HIDDEN MODE (Ctrl+G) */
+        /* ✅ Solo deja visibles los botones de navegación */
+        /* ========================================== */
+        body.ui-hidden .sound-toggle,
+        body.ui-hidden .edit-button,
+        body.ui-hidden .slide-counter,
+        body.ui-hidden .progress-bar,
+        body.ui-hidden .trans-sound-toggle,
+        body.ui-hidden .fullscreen-btn,
+        body.ui-hidden .block-decoration,
+        body.ui-hidden .slide-actions,
+        body.ui-hidden .edit-controls,
+        body.ui-hidden .toast-notification {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            padding: 60px;
+            animation: fadeIn 0.8s;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .minecraft-box {
+            background: rgba(74, 111, 40, 0.92);
+            border: 4px solid #5b8731;
+            box-shadow: 
+                inset -4px -4px 0px 0px #3e5c20,
+                inset 4px 4px 0px 0px #8fca5c,
+                4px 4px 0px 0px #1d1c21;
+            padding: 40px;
+            max-width: 950px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            image-rendering: pixelated;
+            position: relative;
+        }
+
+        .minecraft-box::-webkit-scrollbar {
+            width: 10px;
+        }
+        .minecraft-box::-webkit-scrollbar-track {
+            background: #3e5c20;
+        }
+        .minecraft-box::-webkit-scrollbar-thumb {
+            background: #8fca5c;
+            border: 2px solid #3e5c20;
+        }
+
+        h1 {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            color: #fff;
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            text-align: center;
+            text-shadow: 
+                3px 3px 0px #3e5c20,
+                -1px -1px 0px #8fca5c;
+            letter-spacing: 2px;
+            font-weight: normal;
+        }
+
+        h2 {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            color: #ffd83d;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 0px #1d1c21;
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+
+        p, li {
+            color: #f9ffff;
+            font-size: 1em;
+            line-height: 1.6;
+            text-align: left;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            margin-bottom: 8px;
+        }
+
+        p {
+            text-align: center;
+        }
+
+        ul {
+            list-style: none;
+            padding: 15px 20px;
+        }
+
+        ul li {
+            padding: 6px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        ul li:before {
+            content: "▸";
+            color: #ffd83d;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .slide-image {
+            max-width: 100%;
+            height: auto;
+            margin: 15px auto;
+            border: 3px solid #5b8731;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c,
+                4px 4px 0px 0px #1d1c21;
+            display: block;
+        }
+
+        .image-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            align-items: start;
+        }
+
+        .image-group .slide-image {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            margin: 0;
+        }
+
+        .nav-button {
+            position: fixed;
+            bottom: 30px;
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c;
+            color: white;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .nav-button:hover {
+            background: #8fca5c;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:active {
+            transform: translateY(2px);
+            box-shadow: 
+                inset 3px 3px 0px 0px #3e5c20,
+                inset -3px -3px 0px 0px #8fca5c;
+        }
+
+        .prev { left: 30px; }
+        .next { right: 30px; }
+
+        .sound-toggle {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c;
+            color: white;
+            padding: 15px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .sound-toggle:hover {
+            background: #8fca5c;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .sound-toggle.muted {
+            background: #8b3e3e;
+            border-color: #ca5c5c;
+        }
+
+        /* ========================================== */
+        /* 🔊 BOTÓN SONIDO TRANSICIÓN */
+        /* ========================================== */
+        .trans-sound-toggle {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4a6f28;
+            border: 3px solid #8fca5c;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c;
+            color: white;
+            padding: 10px 18px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trans-sound-toggle:hover {
+            background: #8fca5c;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .trans-sound-toggle.muted {
+            background: #8b3e3e;
+            border-color: #ca5c5c;
+        }
+
+        /* ========================================== */
+        /* 🖥️ BOTÓN PANTALLA COMPLETA */
+        /* ========================================== */
+        .fullscreen-btn {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c4a1a;
+            border: 3px solid #8fca5c;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c;
+            color: white;
+            padding: 12px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.65em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fullscreen-btn:hover {
+            background: #8fca5c;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .fullscreen-btn.active {
+            background: #ffd83d;
+            border-color: #ffb800;
+            color: #1d1c21;
+        }
+
+        .edit-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: #ffd83d;
+            border: 3px solid #ffb800;
+            box-shadow: 
+                inset -3px -3px 0px 0px #cc9900,
+                inset 3px 3px 0px 0px #ffed4a;
+            color: #1d1c21;
+            padding: 15px 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .edit-button:hover {
+            background: #ffed4a;
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: #fff;
+            font-size: 0.8em;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border: 3px solid #5b8731;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+
+        .block-decoration {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            box-shadow: 
+                inset -3px -3px 0px 0px #3e5c20,
+                inset 3px 3px 0px 0px #8fca5c;
+            transition: opacity 0.4s ease;
+        }
+
+        .block-1 { top: 100px; left: 50px; }
+        .block-2 { top: 150px; right: 80px; background: #8b7355; }
+        .block-3 { bottom: 150px; left: 100px; background: #6b5344; }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #5b8731, #8fca5c);
+            transition: width 0.3s, opacity 0.3s ease;
+            box-shadow: 0 0 10px rgba(143, 202, 92, 0.5);
+        }
+
+        .edit-mode .minecraft-box {
+            border-color: #ffd83d;
+            box-shadow: 
+                inset -4px -4px 0px 0px #3e5c20,
+                inset 4px 4px 0px 0px #8fca5c,
+                4px 4px 0px 0px #ffd83d,
+                0 0 20px rgba(255, 216, 61, 0.5);
+        }
+
+        /* ========================================== */
+        /* ✏️ ESTILO EDITABLE - SOLO VISIBLE EN MODO EDICIÓN */
+        /* ✅ Ya no muestra bordes amarillos en presentación normal */
+        /* ========================================== */
+        .editable {
+            outline: none;
+            min-height: 1.5em;
+            transition: all 0.3s ease;
+        }
+
+        .edit-mode .editable {
+            border: 2px dashed #ffd83d !important;
+            background: rgba(255, 216, 61, 0.1) !important;
+            padding: 5px !important;
+            cursor: text;
+        }
+
+        .edit-mode .editable:focus {
+            background: rgba(255, 216, 61, 0.2) !important;
+            border-style: solid !important;
+        }
+
+        .edit-controls {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            transition: opacity 0.4s ease;
+        }
+
+        .edit-controls.active {
+            display: flex;
+        }
+
+        .edit-controls h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .edit-controls button {
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            color: white;
+            padding: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.65em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-controls button:hover {
+            background: #8fca5c;
+        }
+
+        .edit-controls .danger {
+            background: #8b3e3e;
+            border-color: #ca5c5c;
+        }
+
+        .edit-controls .danger:hover {
+            background: #ca5c5c;
+        }
+
+        .edit-controls .section-divider {
+            border-top: 2px dashed #5b8731;
+            margin: 5px 0;
+        }
+
+        .edit-controls .section-label {
+            color: #8fca5c;
+            font-size: 0.5em;
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        .slide-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 10px;
+            transition: opacity 0.4s ease;
+        }
+
+        .edit-mode .slide-actions {
+            display: flex;
+        }
+
+        .slide-action-btn {
+            background: #ffd83d;
+            border: 2px solid #ffb800;
+            color: #1d1c21;
+            padding: 5px 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6em;
+            cursor: pointer;
+        }
+
+        .slide-action-btn:hover {
+            background: #ffed4a;
+        }
+
+        .close-edit {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .video-gallery {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .video-gallery.active {
+            display: flex;
+        }
+
+        .video-gallery h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .video-item {
+            border: 3px solid #5b8731;
+            background: rgba(74, 111, 40, 0.3);
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .video-item:hover {
+            border-color: #ffd83d;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(255, 216, 61, 0.4);
+        }
+
+        .video-item video {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 2px solid #3e5c20;
+            background: #1a1a1a;
+        }
+
+        .video-item h4 {
+            color: #fff;
+            font-size: 0.7em;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .video-item p {
+            color: #8fca5c;
+            font-size: 0.6em;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .video-item .file-name {
+            color: #ffd83d;
+            font-size: 0.5em;
+            text-align: center;
+            margin-top: 5px;
+            word-break: break-all;
+            font-style: italic;
+        }
+
+        .close-gallery {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .style-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .style-panel.active {
+            display: flex;
+        }
+
+        .style-panel h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .style-section {
+            background: rgba(74, 111, 40, 0.2);
+            border: 2px solid #5b8731;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .style-section h4 {
+            color: #8fca5c;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+        }
+
+        .style-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .style-row label {
+            color: #fff;
+            font-size: 0.6em;
+            min-width: 120px;
+        }
+
+        .style-row input[type="range"] {
+            flex: 1;
+            height: 8px;
+            background: #3e5c20;
+            border: 2px solid #5b8731;
+            border-radius: 4px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .style-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffd83d;
+            border: 2px solid #ffb800;
+            cursor: pointer;
+        }
+
+        .style-row input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: 3px solid #5b8731;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        .style-row select {
+            flex: 1;
+            background: #1a1a1a;
+            border: 3px solid #5b8731;
+            color: #fff;
+            padding: 8px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6em;
+            cursor: pointer;
+        }
+
+        .style-value {
+            color: #ffd83d;
+            font-size: 0.7em;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .style-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .style-buttons button {
+            flex: 1;
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            color: white;
+            padding: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .style-buttons button:hover {
+            background: #8fca5c;
+        }
+
+        .style-buttons .reset-btn {
+            background: #8b3e3e;
+            border-color: #ca5c5c;
+        }
+
+        .style-buttons .reset-btn:hover {
+            background: #ca5c5c;
+        }
+
+        .close-style {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .text-editor-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .text-editor-panel.active {
+            display: flex;
+        }
+
+        .text-editor-panel h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .text-item {
+            background: rgba(74, 111, 40, 0.2);
+            border: 2px solid #5b8731;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .text-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .text-item-label {
+            color: #8fca5c;
+            font-size: 0.7em;
+        }
+
+        .text-item-slide {
+            color: #ffd83d;
+            font-size: 0.6em;
+        }
+
+        .text-item textarea {
+            width: 100%;
+            min-height: 80px;
+            background: #1a1a1a;
+            border: 2px solid #5b8731;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Verdana', sans-serif;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+
+        .text-item textarea:focus {
+            outline: none;
+            border-color: #ffd83d;
+        }
+
+        .close-text-editor {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .search-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .search-panel.active {
+            display: flex;
+        }
+
+        .search-panel h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .search-input-group {
+            background: rgba(74, 111, 40, 0.2);
+            border: 2px solid #5b8731;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .search-input-group label {
+            color: #8fca5c;
+            font-size: 0.7em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .search-input-group input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 2px solid #5b8731;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Verdana', sans-serif;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .search-input-group input:focus {
+            outline: none;
+            border-color: #ffd83d;
+        }
+
+        .search-results {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #5b8731;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #fff;
+            font-size: 0.8em;
+            line-height: 1.6;
+        }
+
+        .close-search {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .add-text-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #5b8731;
+            padding: 40px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .add-text-panel.active {
+            display: flex;
+        }
+
+        .add-text-panel h3 {
+            color: #ffd83d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .add-text-section {
+            background: rgba(74, 111, 40, 0.2);
+            border: 2px solid #5b8731;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .add-text-section h4 {
+            color: #8fca5c;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+        }
+
+        .add-text-section select,
+        .add-text-section textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 2px solid #5b8731;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Verdana', sans-serif;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .add-text-section textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .add-text-section select:focus,
+        .add-text-section textarea:focus {
+            outline: none;
+            border-color: #ffd83d;
+        }
+
+        .add-text-section .help-text {
+            color: #8fca5c;
+            font-size: 0.7em;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .close-add-text {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #8b3e3e;
+            border: 2px solid #ca5c5c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+        }
+
+        .image-upload-btn {
+            display: block;
+            width: 100%;
+            background: #5b8731;
+            border: 3px solid #8fca5c;
+            color: white;
+            padding: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.65em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .image-upload-btn:hover {
+            background: #8fca5c;
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+        }
+
+        /* ========================================== */
+        /* 💡 TOAST NOTIFICATION */
+        /* ========================================== */
+        .toast-notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #8fca5c;
+            color: #fff;
+            padding: 12px 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7em;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(143, 202, 92, 0.5);
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6em; }
+            h2 { font-size: 1.3em; }
+            p, li { font-size: 0.85em; }
+            .minecraft-box { padding: 20px; }
+            .slide { padding: 30px 20px; }
+            .nav-button { padding: 10px 20px; font-size: 0.6em; }
+            .edit-button { font-size: 0.6em; padding: 10px 15px; }
+            .sound-toggle { font-size: 0.6em; padding: 10px 15px; }
+            .trans-sound-toggle { font-size: 0.5em; padding: 8px 12px; bottom: 80px; }
+            .fullscreen-btn { font-size: 0.55em; padding: 10px 15px; }
+            .video-grid { grid-template-columns: 1fr; }
+            .style-row { flex-direction: column; align-items: stretch; }
+            .style-row label { min-width: auto; }
+            .image-group { grid-template-columns: 1fr; }
+            .transition-overlay .barra-contenedor { width: 250px; }
+            .transition-overlay .numero-xp { font-size: 20px; }
+            .transition-overlay .siguente-nivel { font-size: 16px; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .image-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========================================== -->
+    <!-- 🎬 TRANSICIÓN DE EXPERIENCIA MINECRAFT -->
+    <!-- ========================================== -->
+    <div class="transition-overlay" id="transitionOverlay">
+        <video class="trans-video" id="transVideo" playsinline>
+            <source src="0613(1).mp4" type="video/mp4">
+        </video>
+        <div class="trans-overlay-dark"></div>
+        <div class="trans-content">
+            <div class="numero-xp" id="transTextoXP">30</div>
+            <div class="barra-contenedor">
+                <div class="barra-carga" id="transBarraCarga"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 💡 TOAST NOTIFICATION -->
+    <!-- ========================================== -->
+    <div class="toast-notification" id="toastNotification"></div>
+
+    <!-- ========================================== -->
+    <!-- 🔊 ELEMENTOS DE AUDIO -->
+    <!-- ========================================== -->
+    <audio id="audioNext" src="minecraft-click-sound-effect_hCi5ZHqB.mp3"></audio>
+    <audio id="audioPrev" src="minecraft-click-sound-effect_hCi5ZHqB.mp3"></audio>
+    <audio id="audioEdit" src="sonidos-de-minecraft-aldeanos_vOhLiWQk.mp3"></audio>
+    <audio id="audioTransition" src="Totem Gif with Sound..mp4"></audio>
+
+    <!-- Video Background -->
+    <video class="video-background" autoplay muted loop playsinline id="bgVideo">
+        <source src="" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Edit Button -->
+    <button class="edit-button" onclick="toggleEditMode()">
+        <span>✏️</span>
+        <span id="editBtnText">Editar PPT</span>
+    </button>
+
+    <!-- ========================================== -->
+    <!-- 🖥️ BOTÓN PANTALLA COMPLETA -->
+    <!-- ========================================== -->
+    <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Pantalla Completa (F11)">
+        <span id="fullscreenIcon">⛶</span>
+        <span id="fullscreenText">Pantalla Completa</span>
+    </button>
+
+    <!-- ========================================== -->
+    <!-- 🔊 BOTÓN SONIDO TRANSICIÓN -->
+    <!-- ========================================== -->
+    <button class="trans-sound-toggle" id="transSoundToggle" onclick="toggleTransitionSound()" title="Sonido de Transición">
+        <span id="transSoundIcon">🎬</span>
+        <span id="transSoundStatus">Transición: ON</span>
+    </button>
+
+    <!-- Slide Counter -->
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+    </div>
+
+    <!-- Edit Controls Modal -->
+    <div class="edit-controls" id="editControls">
+        <button class="close-edit" onclick="toggleEditMode()">×</button>
+        <h3>🎮 MODO EDICIÓN</h3>
+        
+        <div class="section-label">📄 SLIDES</div>
+        <button onclick="addNewSlide()">➕ Agregar Nueva Slide</button>
+        <button onclick="deleteCurrentSlide()" class="danger">🗑️ Eliminar Slide Actual</button>
+        <button onclick="duplicateSlide()">📋 Duplicar Slide</button>
+        
+        <div class="section-divider"></div>
+        <div class="section-label">📝 TEXTOS</div>
+        <button onclick="openTextEditor()">✏️ Editar Textos Existentes</button>
+        <button onclick="openAddTextPanel()">➕ Agregar Nuevo Texto</button>
+        <button onclick="openSearchPanel()">🔍 Buscar y Reemplazar</button>
+        
+        <div class="section-divider"></div>
+        <div class="section-label">🎨 APARIENCIA</div>
+        <button onclick="openVideoGallery()">📺 Cambiar Video de Fondo</button>
+        <button onclick="openStylePanel()">🎨 Personalizar Estilos</button>
+        
+        <div class="section-divider"></div>
+        <div class="section-label">💾 ARCHIVO</div>
+        <button onclick="savePresentation()">💾 Guardar Cambios</button>
+        <button onclick="exportToHTML()">📤 Exportar HTML</button>
+    </div>
+
+    <!-- Video Gallery Modal -->
+    <div class="video-gallery" id="videoGallery">
+        <button class="close-gallery" onclick="closeVideoGallery()">×</button>
+        <h3>📺 SELECCIONAR VIDEO DE FONDO</h3>
+        <p style="text-align: center; color: #8fca5c; font-size: 0.7em;">Haz clic en un video para usarlo como fondo</p>
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Style Panel Modal -->
+    <div class="style-panel" id="stylePanel">
+        <button class="close-style" onclick="closeStylePanel()">×</button>
+        <h3>🎨 PERSONALIZAR ESTILOS</h3>
+        
+        <div class="style-section">
+            <h4>📝 Título Principal (H1)</h4>
+            <div class="style-row">
+                <label>Tamaño:</label>
+                <input type="range" id="h1Size" min="1" max="5" step="0.1" value="2.8" oninput="updateStyle('h1', 'fontSize', this.value + 'em')">
+                <span class="style-value" id="h1SizeValue">2.8em</span>
+            </div>
+            <div class="style-row">
+                <label>Color:</label>
+                <input type="color" id="h1Color" value="#ffffff" oninput="updateStyle('h1', 'color', this.value)">
+            </div>
+        </div>
+
+        <div class="style-section">
+            <h4>📌 Subtítulos (H2)</h4>
+            <div class="style-row">
+                <label>Tamaño:</label>
+                <input type="range" id="h2Size" min="1" max="4" step="0.1" value="2" oninput="updateStyle('h2', 'fontSize', this.value + 'em')">
+                <span class="style-value" id="h2SizeValue">2em</span>
+            </div>
+            <div class="style-row">
+                <label>Color:</label>
+                <input type="color" id="h2Color" value="#ffd83d" oninput="updateStyle('h2', 'color', this.value)">
+            </div>
+        </div>
+
+        <div class="style-section">
+            <h4>📄 Párrafos (P)</h4>
+            <div class="style-row">
+                <label>Tamaño:</label>
+                <input type="range" id="pSize" min="0.5" max="2" step="0.05" value="1" oninput="updateStyle('p', 'fontSize', this.value + 'em')">
+                <span class="style-value" id="pSizeValue">1em</span>
+            </div>
+            <div class="style-row">
+                <label>Color:</label>
+                <input type="color" id="pColor" value="#f9ffff" oninput="updateStyle('p', 'color', this.value)">
+            </div>
+            <div class="style-row">
+                <label>Interlineado:</label>
+                <input type="range" id="pLineHeight" min="1" max="3" step="0.1" value="1.6" oninput="updateStyle('p', 'lineHeight', this.value)">
+                <span class="style-value" id="pLineHeightValue">1.6</span>
+            </div>
+        </div>
+
+        <div class="style-section">
+            <h4>📋 Listas (LI)</h4>
+            <div class="style-row">
+                <label>Tamaño:</label>
+                <input type="range" id="liSize" min="0.5" max="2" step="0.05" value="1" oninput="updateStyle('li', 'fontSize', this.value + 'em')">
+                <span class="style-value" id="liSizeValue">1em</span>
+            </div>
+            <div class="style-row">
+                <label>Color:</label>
+                <input type="color" id="liColor" value="#f9ffff" oninput="updateStyle('li', 'color', this.value)">
+            </div>
+        </div>
+
+        <div class="style-buttons">
+            <button onclick="applyAllStyles()">✅ Aplicar Cambios</button>
+            <button onclick="resetStyles()" class="reset-btn">🔄 Restablecer</button>
+        </div>
+    </div>
+
+    <!-- Text Editor Panel -->
+    <div class="text-editor-panel" id="textEditorPanel">
+        <button class="close-text-editor" onclick="closeTextEditor()">×</button>
+        <h3>✏️ EDITAR TEXTOS EXISTENTES</h3>
+        <div id="textEditorContent"></div>
+        <div class="style-buttons">
+            <button onclick="applyTextChanges()">✅ Aplicar Todos los Cambios</button>
+        </div>
+    </div>
+
+    <!-- Search and Replace Panel -->
+    <div class="search-panel" id="searchPanel">
+        <button class="close-search" onclick="closeSearchPanel()">×</button>
+        <h3>🔍 BUSCAR Y REEMPLAZAR</h3>
+        <div class="search-input-group">
+            <label>🔎 Buscar texto:</label>
+            <input type="text" id="searchInput" placeholder="Escribe el texto a buscar..." oninput="performSearch()">
+            <label>🔄 Reemplazar con:</label>
+            <input type="text" id="replaceInput" placeholder="Nuevo texto...">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="image-upload-btn" onclick="performSearch()" style="flex: 1; margin: 0;">🔍 Buscar</button>
+                <button class="image-upload-btn" onclick="replaceAll()" style="flex: 1; margin: 0;">🔄 Reemplazar Todo</button>
+            </div>
+        </div>
+        <div id="searchResults" class="search-results" style="display: none;"></div>
+    </div>
+
+    <!-- Add Text Panel -->
+    <div class="add-text-panel" id="addTextPanel">
+        <button class="close-add-text" onclick="closeAddTextPanel()">×</button>
+        <h3>➕ AGREGAR NUEVO TEXTO</h3>
+        <div class="add-text-section">
+            <h4>📝 Slide Actual: <span id="currentSlideInfo" style="color: #ffd83d;">Slide 1</span></h4>
+            <h4 style="margin-top: 15px;">🎯 Tipo de Elemento:</h4>
+            <select id="newTextType">
+                <option value="h1">📝 Título Principal (H1)</option>
+                <option value="h2" selected>📌 Subtítulo (H2)</option>
+                <option value="p">📄 Párrafo (P)</option>
+                <option value="li">📋 Elemento de Lista (LI)</option>
+            </select>
+            <h4 style="margin-top: 15px;">✍️ Escribe tu texto:</h4>
+            <textarea id="newTextContent" placeholder="Escribe aquí tu nuevo texto..."></textarea>
+            <button class="image-upload-btn" onclick="insertNewText()" style="margin-top: 10px;">
+                ✅ Insertar Texto en la Slide
+            </button>
+        </div>
+    </div>
+
+    <!-- Presentation -->
+    <div class="presentation" id="presentation">
+        
+        <!-- Slide 1: Nube de Palabras -->
+        <div class="slide active" data-slide="1">
+            <div class="block-decoration block-1"></div>
+            <div class="block-decoration block-2"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h1 class="editable" contenteditable="false" style="color: #ffffff;">Nube de Palabras</h1>
+                <img src="Untitled.png" alt="Nube de palabras" class="slide-image" style="max-width: 480px;">
+                <p class="editable" contenteditable="false">
+                    <strong style="color:#ffffff;">Nube de palabras</strong>: Representación visual de texto donde el tamaño y, a veces, el color de cada palabra indican su frecuencia de aparición o importancia dentro de un conjunto de datos.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Características Nube de Palabras -->
+        <div class="slide" data-slide="2">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Características</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Jerarquía visual:</strong> El tamaño de la fuente es proporcional a la frecuencia de repetición de la palabra.</li>
+                    <li><strong style="color:#ffd83d;">Síntesis rápida:</strong> Permite extraer el tema central o las ideas principales de un texto sin necesidad de leerlo por completo.</li>
+                    <li><strong style="color:#ffd83d;">Filtrado de palabras:</strong> Excluyen automáticamente las palabras vacías (conectores, artículos, preposiciones) que no aportan valor semántico.</li>
+                    <li><strong style="color:#ffd83d;">Fácil comprensión:</strong> Son altamente accesibles para personas sin conocimientos técnicos, útiles en presentaciones, educación y marketing.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Ventajas/Desventajas Nube de Palabras -->
+        <div class="slide" data-slide="3">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Ventajas y Desventajas</h2>
+                <p style="color:#8fca5c; font-size:1.1em; font-weight:bold; text-align:center; margin-bottom:10px;">✅ Ventajas</p>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Interpretación inmediata:</strong> Permiten entender los temas principales sin análisis manual exhaustivo.</li>
+                    <li><strong style="color:#ffd83d;">Detección de patrones:</strong> Facilitan el análisis exploratorio, revelando tendencias ocultas en el texto.</li>
+                </ul>
+                <p style="color:#ca5c5c; font-size:1.1em; font-weight:bold; text-align:center; margin-top:15px; margin-bottom:10px;">❌ Desventajas</p>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Falta de contexto:</strong> Aísla los términos, ocultando la intención, el tono y las relaciones entre las ideas.</li>
+                    <li><strong style="color:#ffd83d;">Sesgo de tamaño:</strong> Las palabras más largas tienden a verse más grandes que las cortas, incluso con la misma cantidad de menciones.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Ambigrama -->
+        <div class="slide" data-slide="4">
+            <div class="block-decoration block-3"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h1 class="editable" contenteditable="false">Ambigrama</h1>
+                <img src="ambigramas.jpg" alt="Ambigrama" class="slide-image" style="max-width: 400px;">
+                <p class="editable" contenteditable="false">
+                    Diseño caligráfico o tipográfico que forma una palabra o frase y que permite ser leído de múltiples maneras.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Características Ambigrama -->
+        <div class="slide" data-slide="5">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Características</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Simetría y perspectiva:</strong> Se basan en operaciones geométricas como la simetría rotacional de 180° o la simetría especular (reflejados en un espejo).</li>
+                    <li><strong style="color:#ffd83d;">Lectura doble:</strong> Al manipular el diseño, puedes obtener la misma palabra (palíndromos visuales) o revelar un mensaje completamente distinto.</li>
+                    <li><strong style="color:#ffd83d;">Técnica exigente:</strong> Su creación requiere paciencia, disciplina y una profunda comprensión de la anatomía de las letras.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Ventajas Ambigrama -->
+        <div class="slide" data-slide="6">
+            <div class="block-decoration block-1"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Ventajas</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Impacto visual y memorabilidad:</strong> Aportan un componente único que rompe con la tipografía tradicional, haciendo el contenido mucho más llamativo y fácil de recordar.</li>
+                    <li><strong style="color:#ffd83d;">Doble mensaje en un solo diseño:</strong> Permiten revelar una palabra distinta al rotarla o reflejarla, ideal para historias visuales o identidades de marca con doble sentido.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Desventajas Ambigrama -->
+        <div class="slide" data-slide="7">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Desventajas</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Legibilidad comprometida:</strong> Al forzar las letras para que tengan doble sentido, el texto puede volverse confuso o difícil de leer a simple vista.</li>
+                    <li><strong style="color:#ffd83d;">Restricciones de longitud:</strong> Funcionan bien con palabras cortas, pero diseñar frases largas resulta extremadamente complejo o imposible.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: Anagramas -->
+        <div class="slide" data-slide="8">
+            <div class="block-decoration block-2"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h1 class="editable" contenteditable="false">Anagramas</h1>
+                <img src="anagramas.jpg" alt="Anagramas" class="slide-image" style="max-width: 420px;">
+                <p class="editable" contenteditable="false">
+                    Juego de palabras que consiste en reorganizar todas las letras de una palabra o frase original para formar una nueva.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Características Anagramas -->
+        <div class="slide" data-slide="9">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Características</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Transposición exacta:</strong> Todas las letras de la palabra original deben estar presentes en la nueva. Ejemplo: de "amor" se puede formar "roma", "ramo" o "mora".</li>
+                    <li><strong style="color:#ffd83d;">Independencia de significado:</strong> La palabra resultante no necesita guardar ninguna relación lógica, semántica o gramatical con la original.</li>
+                    <li><strong style="color:#ffd83d;">Flexibilidad de longitud:</strong> Pueden aplicarse a palabras simples o a frases completas (transformar un nombre propio en una oración).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Ventajas Anagramas -->
+        <div class="slide" data-slide="10">
+            <div class="block-decoration block-1"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Ventajas</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Estimulación cerebral:</strong> Activan simultáneamente múltiples zonas del cerebro y refuerzan la neuroplasticidad.</li>
+                    <li><strong style="color:#ffd83d;">Agilidad mental y lógica:</strong> Mejoran la flexibilidad cognitiva y la capacidad para resolver problemas de forma rápida.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: Desventajas Anagramas -->
+        <div class="slide" data-slide="11">
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">Desventajas</h2>
+                <ul class="editable" contenteditable="false">
+                    <li><strong style="color:#ffd83d;">Limitaciones tecnológicas:</strong> Las herramientas digitales carecen de comprensión contextual. Generan miles de combinaciones sin sentido y no pueden filtrar términos inapropiados.</li>
+                    <li><strong style="color:#ffd83d;">Exigencia cognitiva:</strong> Requieren un amplio vocabulario y agilidad mental. Pueden ser tediosos o requerir secuencias complejas de ensayo y error si no se tiene práctica.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: Galería de Imágenes -->
+        <div class="slide" data-slide="12">
+            <div class="block-decoration block-3"></div>
+            <div class="block-decoration block-1"></div>
+            <div class="slide-actions">
+                <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+            </div>
+            <div class="minecraft-box">
+                <h2 class="editable" contenteditable="false">📚 Galería de Imágenes</h2>
+                <div class="image-group">
+                    <img src="Untitled.png" alt="Nube de palabras" class="slide-image">
+                    <img src="ambigramas.jpg" alt="Ambigramas" class="slide-image">
+                    <img src="anagramas.jpg" alt="Anagramas" class="slide-image">
+                </div>
+                <p class="editable" contenteditable="false" style="margin-top: 15px; font-size: 0.9em;">
+                    Nube de palabras · Ambigramas · Anagramas
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <button class="nav-button prev" onclick="changeSlide(-1)">◄ Anterior</button>
+    <button class="nav-button next" onclick="changeSlide(1)">Siguiente ►</button>
+
+    <!-- Sound Toggle Button -->
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">
+        🔊 <span id="soundStatus">ON</span>
+    </button>
+
+    <script>
+        let soundEnabled = true;
+        let transitionSoundEnabled = true;
+        let uiHidden = false;
+        
+        const videosDisponibles = [
+            { src: 'Peaceful snowy night (Realistic biomes).mp4', nombre: '🌌 Video 1', descripcion: 'Video de fondo 1' },
+            { src: 'Cozy campfire.mp4', nombre: '🌲 Video 2', descripcion: 'Video de fondo 2' },
+            { src: 'Beautiful sunset.mp4', nombre: '✨ Video 3', descripcion: 'Video de fondo 3' }
+        ];
+
+        let currentSlide = 1;
+        let totalSlides = 12;
+        let isEditMode = false;
+        let currentVideoIndex = 0;
+        let isTransitioning = false;
+        
+        let customStyles = {
+            h1: { fontSize: '2.8em', color: '#ffffff' },
+            h2: { fontSize: '2em', color: '#ffd83d' },
+            p: { fontSize: '1em', color: '#f9ffff', lineHeight: '1.6' },
+            li: { fontSize: '1em', color: '#f9ffff' }
+        };
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showToast(message, duration = 2000) {
+            const toast = document.getElementById('toastNotification');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        /* ========================================== */
+        /* 🎯 MODO PRESENTACIÓN (Ctrl+G) */
+        /* Oculta TODO excepto los botones Anterior/Siguiente */
+        /* ========================================== */
+        function toggleUI() {
+            uiHidden = !uiHidden;
+            if (uiHidden) {
+                if (isEditMode) {
+                    toggleEditMode();
+                }
+                closeVideoGallery();
+                closeStylePanel();
+                closeTextEditor();
+                closeSearchPanel();
+                closeAddTextPanel();
+                
+                document.body.classList.add('ui-hidden');
+                showToast('👁️ Modo Presentación — Solo navegación visible');
+            } else {
+                document.body.classList.remove('ui-hidden');
+                showToast('👁️ Interfaz completa restaurada');
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.msFullscreenElement) {
+                
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        function updateFullscreenButton() {
+            const btn = document.getElementById('fullscreenBtn');
+            const icon = document.getElementById('fullscreenIcon');
+            const text = document.getElementById('fullscreenText');
+            
+            const isFullscreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || 
+                                document.msFullscreenElement;
+            
+            if (isFullscreen) {
+                btn.classList.add('active');
+                icon.textContent = '⛶';
+                text.textContent = 'Salir Pantalla Completa';
+            } else {
+                btn.classList.remove('active');
+                icon.textContent = '⛶';
+                text.textContent = 'Pantalla Completa';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+        document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+        function toggleTransitionSound() {
+            transitionSoundEnabled = !transitionSoundEnabled;
+            const toggleBtn = document.getElementById('transSoundToggle');
+            const statusText = document.getElementById('transSoundStatus');
+            
+            if (transitionSoundEnabled) {
+                toggleBtn.classList.remove('muted');
+                statusText.textContent = 'Transición: ON';
+                showToast('🎬 Sonido de transición: ACTIVADO');
+            } else {
+                toggleBtn.classList.add('muted');
+                statusText.textContent = 'Transición: OFF';
+                showToast('🔇 Sonido de transición: DESACTIVADO');
+            }
+        }
+
+        /* ========================================== */
+        /* ⚡ TRANSICIÓN REDUCIDA A 1.5 SEGUNDOS */
+        /* Barra: 900ms + "siguiente nivel": 600ms = 1500ms total */
+        /* ========================================== */
+        function playTransition(callback) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            
+            const overlay = document.getElementById('transitionOverlay');
+            const video = document.getElementById('transVideo');
+            const barra = document.getElementById('transBarraCarga');
+            const texto = document.getElementById('transTextoXP');
+            const audioTrans = document.getElementById('audioTransition');
+            
+            barra.style.width = '0%';
+            texto.textContent = '30';
+            texto.className = 'numero-xp';
+            
+            overlay.classList.add('active');
+            
+            if (transitionSoundEnabled && audioTrans) {
+                audioTrans.currentTime = 0;
+                audioTrans.volume = 1;
+                audioTrans.play().catch(e => console.log('Audio transición:', e));
+            } else if (audioTrans) {
+                audioTrans.muted = true;
+                audioTrans.currentTime = 0;
+                audioTrans.play().catch(e => console.log('Video transición (sin audio):', e));
+                setTimeout(() => { audioTrans.muted = false; }, 100);
+            }
+            
+            video.loop = false;
+            video.currentTime = 0;
+            video.play().catch(e => console.log('Video transición:', e));
+            
+            let progreso = 0;
+            const duracionVideo = 900;  // ⚡ Antes: 1300ms → Ahora: 900ms
+            const intervalo = 40;       // ⚡ Intervalo más rápido para barra más fluida
+            const incremento = 100 / (duracionVideo / intervalo);
+            
+            function cargar() {
+                if (progreso < 100) {
+                    progreso += incremento;
+                    if (progreso > 100) progreso = 100;
+                    barra.style.width = progreso + '%';
+                    setTimeout(cargar, intervalo);
+                } else {
+                    texto.textContent = 'siguiente nivel';
+                    texto.className = 'siguente-nivel';
+                    
+                    setTimeout(() => {  // ⚡ Antes: 1000ms → Ahora: 600ms
+                        overlay.classList.remove('active');
+                        video.pause();
+                        video.currentTime = 0;
+                        if (audioTrans) {
+                            audioTrans.pause();
+                            audioTrans.currentTime = 0;
+                        }
+                        isTransitioning = false;
+                        if (callback) callback();
+                    }, 600);
+                }
+            }
+            
+            cargar();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const toggleBtn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                toggleBtn.classList.remove('muted');
+                toggleBtn.innerHTML = '🔊 <span id="soundStatus">ON</span>';
+            } else {
+                toggleBtn.classList.add('muted');
+                toggleBtn.innerHTML = '🔇 <span id="soundStatus">OFF</span>';
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            const audioMap = { next: 'audioNext', prev: 'audioPrev', edit: 'audioEdit' };
+            const audio = document.getElementById(audioMap[type]);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Error al reproducir sonido:', e));
+            }
+        }
+
+        function openAddTextPanel() {
+            document.getElementById('addTextPanel').classList.add('active');
+            document.getElementById('currentSlideInfo').textContent = `Slide ${currentSlide}`;
+            document.getElementById('newTextContent').value = '';
+        }
+
+        function closeAddTextPanel() {
+            document.getElementById('addTextPanel').classList.remove('active');
+        }
+
+        function insertNewText() {
+            const type = document.getElementById('newTextType').value;
+            const content = document.getElementById('newTextContent').value.trim();
+            if (!content) { alert('⚠️ Por favor escribe algún texto'); return; }
+
+            const slide = document.querySelectorAll('.slide')[currentSlide - 1];
+            const minecraftBox = slide.querySelector('.minecraft-box');
+            
+            if (type === 'li') {
+                let ul = minecraftBox.querySelector('ul');
+                if (!ul) {
+                    ul = document.createElement('ul');
+                    ul.className = 'editable';
+                    ul.contentEditable = isEditMode ? "true" : "false";
+                    minecraftBox.appendChild(ul);
+                }
+                const newLi = document.createElement('li');
+                newLi.innerHTML = content;
+                ul.appendChild(newLi);
+            } else {
+                const newElement = document.createElement(type);
+                newElement.className = 'editable';
+                newElement.contentEditable = isEditMode ? "true" : "false";
+                newElement.innerHTML = content;
+                minecraftBox.appendChild(newElement);
+            }
+
+            closeAddTextPanel();
+            alert(`✅ Texto agregado a la Slide ${currentSlide}`);
+        }
+
+        function openSearchPanel() {
+            document.getElementById('searchPanel').classList.add('active');
+            document.getElementById('searchInput').value = '';
+            document.getElementById('replaceInput').value = '';
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function closeSearchPanel() {
+            document.getElementById('searchPanel').classList.remove('active');
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const resultsDiv = document.getElementById('searchResults');
+            if (!searchTerm) { resultsDiv.style.display = 'none'; return; }
+
+            const slides = document.querySelectorAll('.slide');
+            let results = [];
+            let totalFound = 0;
+
+            slides.forEach((slide, slideIndex) => {
+                const editables = slide.querySelectorAll('.editable');
+                editables.forEach((editable, editableIndex) => {
+                    const text = editable.textContent;
+                    const lowerText = text.toLowerCase();
+                    const lowerSearch = searchTerm.toLowerCase();
+                    if (lowerText.includes(lowerSearch)) {
+                        let count = 0, pos = 0;
+                        while ((pos = lowerText.indexOf(lowerSearch, pos)) !== -1) { count++; pos += lowerSearch.length; }
+                        totalFound += count;
+                        results.push({
+                            slide: slideIndex + 1, element: editableIndex + 1,
+                            tag: editable.tagName.toLowerCase(),
+                            preview: text.substring(0, 80) + (text.length > 80 ? '...' : ''),
+                            count: count
+                        });
+                    }
+                });
+            });
+
+            resultsDiv.style.display = 'block';
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `<p style="color: #ca5c5c;">❌ No se encontró "${searchTerm}"</p>`;
+            } else {
+                let html = `<p style="color: #8fca5c; margin-bottom: 10px;">✅ ${totalFound} coincidencia(s) en ${results.length} elemento(s):</p>`;
+                results.forEach(r => {
+                    html += `<div style="margin: 8px 0; padding: 8px; background: rgba(74,111,40,0.3); border-left: 3px solid #ffd83d;">
+                        <strong style="color: #ffd83d;">Slide ${r.slide}</strong> - ${r.tag.toUpperCase()} #${r.element}
+                        <span style="color: #8fca5c;">(${r.count})</span>
+                        <div style="color: #fff; margin-top: 5px;">"${r.preview}"</div>
+                    </div>`;
+                });
+                resultsDiv.innerHTML = html;
+            }
+        }
+
+        function replaceAll() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const replaceTerm = document.getElementById('replaceInput').value;
+            if (!searchTerm) { alert('⚠️ Ingresa un texto a buscar'); return; }
+            if (!confirm(`¿Reemplazar "${searchTerm}" por "${replaceTerm}"?`)) return;
+
+            let totalReplaced = 0;
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.querySelectorAll('.editable').forEach(editable => {
+                    const originalHTML = editable.innerHTML;
+                    const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                    const newHTML = originalHTML.replace(regex, replaceTerm);
+                    if (originalHTML !== newHTML) {
+                        const matches = originalHTML.match(regex);
+                        if (matches) totalReplaced += matches.length;
+                        editable.innerHTML = newHTML;
+                    }
+                });
+            });
+            closeSearchPanel();
+            alert(`✅ ${totalReplaced} coincidencia(s) reemplazadas`);
+        }
+
+        function openTextEditor() {
+            document.getElementById('textEditorPanel').classList.add('active');
+            buildTextEditor();
+        }
+
+        function closeTextEditor() {
+            document.getElementById('textEditorPanel').classList.remove('active');
+        }
+
+        function buildTextEditor() {
+            const content = document.getElementById('textEditorContent');
+            content.innerHTML = '';
+            document.querySelectorAll('.slide').forEach((slide, slideIndex) => {
+                slide.querySelectorAll('.editable').forEach((editable, editableIndex) => {
+                    const textItem = document.createElement('div');
+                    textItem.className = 'text-item';
+                    textItem.innerHTML = `
+                        <div class="text-item-header">
+                            <span class="text-item-label">${editable.tagName.toUpperCase()} - Slide ${slideIndex + 1}</span>
+                            <span class="text-item-slide">#${editableIndex + 1}</span>
+                        </div>
+                        <textarea data-slide="${slideIndex}" data-element="${editableIndex}">${editable.innerHTML}</textarea>
+                    `;
+                    content.appendChild(textItem);
+                });
+            });
+        }
+
+        function applyTextChanges() {
+            document.querySelectorAll('#textEditorContent textarea').forEach(textarea => {
+                const slide = document.querySelectorAll('.slide')[parseInt(textarea.dataset.slide)];
+                const editable = slide.querySelectorAll('.editable')[parseInt(textarea.dataset.element)];
+                if (editable) editable.innerHTML = textarea.value;
+            });
+            closeTextEditor();
+            alert('✅ Textos actualizados');
+        }
+
+        function openStylePanel() {
+            document.getElementById('stylePanel').classList.add('active');
+            loadCurrentStyles();
+        }
+
+        function closeStylePanel() {
+            document.getElementById('stylePanel').classList.remove('active');
+        }
+
+        function loadCurrentStyles() {
+            document.getElementById('h1Size').value = parseFloat(customStyles.h1.fontSize);
+            document.getElementById('h1SizeValue').textContent = customStyles.h1.fontSize;
+            document.getElementById('h1Color').value = customStyles.h1.color;
+            document.getElementById('h2Size').value = parseFloat(customStyles.h2.fontSize);
+            document.getElementById('h2SizeValue').textContent = customStyles.h2.fontSize;
+            document.getElementById('h2Color').value = customStyles.h2.color;
+            document.getElementById('pSize').value = parseFloat(customStyles.p.fontSize);
+            document.getElementById('pSizeValue').textContent = customStyles.p.fontSize;
+            document.getElementById('pColor').value = customStyles.p.color;
+            document.getElementById('pLineHeight').value = customStyles.p.lineHeight;
+            document.getElementById('pLineHeightValue').textContent = customStyles.p.lineHeight;
+            document.getElementById('liSize').value = parseFloat(customStyles.li.fontSize);
+            document.getElementById('liSizeValue').textContent = customStyles.li.fontSize;
+            document.getElementById('liColor').value = customStyles.li.color;
+        }
+
+        function updateStyle(element, property, value) {
+            customStyles[element][property] = value;
+            if (property === 'fontSize') document.getElementById(`${element}SizeValue`).textContent = value;
+            else if (property === 'lineHeight') document.getElementById(`${element}LineHeightValue`).textContent = value;
+            document.querySelectorAll(element).forEach(el => el.style[property] = value);
+        }
+
+        function applyAllStyles() {
+            Object.keys(customStyles).forEach(element => {
+                Object.keys(customStyles[element]).forEach(property => {
+                    document.querySelectorAll(element).forEach(el => el.style[property] = customStyles[element][property]);
+                });
+            });
+            localStorage.setItem('customStyles', JSON.stringify(customStyles));
+            alert('✅ Estilos aplicados');
+        }
+
+        function resetStyles() {
+            if (!confirm('¿Restablecer estilos?')) return;
+            customStyles = {
+                h1: { fontSize: '2.8em', color: '#ffffff' },
+                h2: { fontSize: '2em', color: '#ffd83d' },
+                p: { fontSize: '1em', color: '#f9ffff', lineHeight: '1.6' },
+                li: { fontSize: '1em', color: '#f9ffff' }
+            };
+            ['h1','h2','p','li'].forEach(el => {
+                document.querySelectorAll(el).forEach(e => { e.style.fontSize=''; e.style.color=''; e.style.lineHeight=''; });
+            });
+            localStorage.removeItem('customStyles');
+            loadCurrentStyles();
+            alert('✅ Estilos restablecidos');
+        }
+
+        function loadSavedStyles() {
+            const saved = localStorage.getItem('customStyles');
+            if (saved) {
+                customStyles = JSON.parse(saved);
+                Object.keys(customStyles).forEach(element => {
+                    Object.keys(customStyles[element]).forEach(property => {
+                        document.querySelectorAll(element).forEach(el => el.style[property] = customStyles[element][property]);
+                    });
+                });
+            }
+        }
+
+        function buildVideoGallery() {
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            videosDisponibles.forEach((video, index) => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                item.id = `videoItem${index}`;
+                item.innerHTML = `
+                    <div onclick="selectVideo(${index})" style="cursor: pointer;">
+                        <video id="previewVideo${index}" autoplay muted loop playsinline>
+                            <source src="${video.src}" type="video/mp4">
+                        </video>
+                        <h4>${video.nombre}</h4>
+                        <p>${video.descripcion}</p>
+                        <p class="file-name">📁 ${video.src}</p>
+                    </div>
+                `;
+                videoGrid.appendChild(item);
+            });
+        }
+
+        function openVideoGallery() {
+            document.getElementById('videoGallery').classList.add('active');
+            videosDisponibles.forEach((video, index) => {
+                const item = document.getElementById(`videoItem${index}`);
+                if (item) {
+                    item.style.borderColor = index === currentVideoIndex ? '#ffd83d' : '#5b8731';
+                    item.style.boxShadow = index === currentVideoIndex ? '0 0 20px rgba(255,216,61,0.6)' : 'none';
+                }
+                const pv = document.getElementById(`previewVideo${index}`);
+                if (pv) pv.play().catch(e => {});
+            });
+        }
+
+        function closeVideoGallery() {
+            document.getElementById('videoGallery').classList.remove('active');
+            videosDisponibles.forEach((video, index) => {
+                const pv = document.getElementById(`previewVideo${index}`);
+                if (pv) { pv.pause(); pv.currentTime = 0; }
+            });
+        }
+
+        function selectVideo(index) {
+            const video = videosDisponibles[index];
+            const bgVideo = document.getElementById('bgVideo');
+            bgVideo.querySelector('source').src = video.src;
+            bgVideo.load();
+            bgVideo.play().catch(e => {});
+            currentVideoIndex = index;
+            setTimeout(() => { closeVideoGallery(); alert(`✅ Video: ${video.nombre}`); }, 500);
+        }
+
+        function showSlide(n) {
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.slide')[currentSlide - 1].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide;
+            document.getElementById('progressBar').style.width = (currentSlide / totalSlides * 100) + '%';
+        }
+
+        function changeSlide(n) {
+            if (isTransitioning) return;
+            
+            if (n > 0) playSound('next');
+            else if (n < 0) playSound('prev');
+            
+            if (isEditMode && !confirm('¿Cambiar de slide?')) return;
+            
+            const nextSlide = currentSlide + n;
+            
+            if (n > 0) {
+                playTransition(() => {
+                    currentSlide = nextSlide;
+                    showSlide(currentSlide);
+                });
+            } else {
+                currentSlide = nextSlide;
+                showSlide(currentSlide);
+            }
+        }
+
+        function toggleEditMode() {
+            playSound('edit');
+            isEditMode = !isEditMode;
+            const editControls = document.getElementById('editControls');
+            const editables = document.querySelectorAll('.editable');
+            
+            if (isEditMode) {
+                document.body.classList.add('edit-mode');
+                editControls.classList.add('active');
+                document.getElementById('editBtnText').textContent = 'Salir Edición';
+                editables.forEach(el => el.contentEditable = "true");
+            } else {
+                document.body.classList.remove('edit-mode');
+                editControls.classList.remove('active');
+                document.getElementById('editBtnText').textContent = 'Editar PPT';
+                editables.forEach(el => el.contentEditable = "false");
+            }
+        }
+
+        function addNewSlide() {
+            const presentation = document.getElementById('presentation');
+            const newSlide = document.createElement('div');
+            newSlide.className = 'slide';
+            newSlide.setAttribute('data-slide', totalSlides + 1);
+            newSlide.innerHTML = `
+                <div class="slide-actions">
+                    <button class="slide-action-btn" onclick="moveSlide(-1)">↑</button>
+                    <button class="slide-action-btn" onclick="moveSlide(1)">↓</button>
+                </div>
+                <div class="minecraft-box">
+                    <h2 class="editable" contenteditable="true">📝 Nueva Slide</h2>
+                    <p class="editable" contenteditable="true">Edita este contenido.</p>
+                </div>
+            `;
+            presentation.appendChild(newSlide);
+            totalSlides++;
+            document.getElementById('totalSlides').textContent = totalSlides;
+            currentSlide = totalSlides;
+            showSlide(currentSlide);
+            alert('✅ Nueva slide agregada');
+        }
+
+        function deleteCurrentSlide() {
+            if (totalSlides <= 1) { alert('⚠️ Debe haber al menos una slide'); return; }
+            if (!confirm('¿Eliminar esta slide?')) return;
+            document.querySelectorAll('.slide')[currentSlide - 1].remove();
+            totalSlides--;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            document.getElementById('totalSlides').textContent = totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function duplicateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            const clone = slides[currentSlide - 1].cloneNode(true);
+            document.getElementById('presentation').insertBefore(clone, slides[currentSlide]);
+            totalSlides++;
+            document.getElementById('totalSlides').textContent = totalSlides;
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function moveSlide(direction) {
+            const newIndex = currentSlide + direction;
+            if (newIndex < 1 || newIndex > totalSlides) return;
+            const slides = document.querySelectorAll('.slide');
+            const currentEl = slides[currentSlide - 1];
+            const targetEl = slides[newIndex - 1];
+            const presentation = document.getElementById('presentation');
+            if (direction === -1) presentation.insertBefore(currentEl, targetEl);
+            else presentation.insertBefore(targetEl, currentEl);
+            currentSlide = newIndex;
+            showSlide(currentSlide);
+        }
+
+        function savePresentation() {
+            localStorage.setItem('minecraftPresentation', document.getElementById('presentation').innerHTML);
+            localStorage.setItem('selectedVideoIndex', currentVideoIndex);
+            localStorage.setItem('customStyles', JSON.stringify(customStyles));
+            localStorage.setItem('transitionSoundEnabled', transitionSoundEnabled);
+            alert('💾 Presentación guardada');
+        }
+
+        function exportToHTML() {
+            document.querySelectorAll('.editable').forEach(el => el.contentEditable = "false");
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'presentacion-minecraft.html';
+            a.click();
+            if (isEditMode) document.querySelectorAll('.editable').forEach(el => el.contentEditable = "true");
+        }
+
+        function loadPresentation() {
+            const saved = localStorage.getItem('minecraftPresentation');
+            if (saved && confirm('📂 ¿Cargar presentación guardada?')) {
+                document.getElementById('presentation').innerHTML = saved;
+                totalSlides = document.querySelectorAll('.slide').length;
+                document.getElementById('totalSlides').textContent = totalSlides;
+                const savedVideo = localStorage.getItem('selectedVideoIndex');
+                if (savedVideo !== null) currentVideoIndex = parseInt(savedVideo);
+                
+                const savedTransSound = localStorage.getItem('transitionSoundEnabled');
+                if (savedTransSound !== null) {
+                    transitionSoundEnabled = savedTransSound === 'true';
+                    const toggleBtn = document.getElementById('transSoundToggle');
+                    const statusText = document.getElementById('transSoundStatus');
+                    if (!transitionSoundEnabled) {
+                        toggleBtn.classList.add('muted');
+                        statusText.textContent = 'Transición: OFF';
+                    }
+                }
+                
+                showSlide(1);
+            }
+        }
+
+        function loadDefaultVideo() {
+            if (videosDisponibles.length > 0) {
+                const bgVideo = document.getElementById('bgVideo');
+                bgVideo.querySelector('source').src = videosDisponibles[0].src;
+                bgVideo.load();
+                bgVideo.play().catch(e => {});
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) {
+                e.preventDefault();
+                toggleUI();
+                return;
+            }
+            
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+                return;
+            }
+            
+            if (e.ctrlKey && (e.key === 'f' || e.key === 'F')) {
+                if (document.activeElement.tagName !== 'INPUT' && 
+                    document.activeElement.tagName !== 'TEXTAREA' &&
+                    !document.activeElement.isContentEditable) {
+                    e.preventDefault();
+                    toggleFullscreen();
+                    return;
+                }
+            }
+            
+            if (isTransitioning) return;
+            
+            if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+            else if (e.key === 'ArrowLeft') changeSlide(-1);
+            else if (e.key === 'Escape') {
+                if (isEditMode) toggleEditMode();
+                closeVideoGallery(); closeStylePanel(); closeTextEditor();
+                closeSearchPanel(); closeAddTextPanel();
+            }
+            else if (e.key === 'm' || e.key === 'M') toggleSound();
+        });
+
+        window.onload = function() {
+            buildVideoGallery();
+            loadPresentation();
+            loadDefaultVideo();
+            loadSavedStyles();
+            updateFullscreenButton();
+            showSlide(currentSlide);
+            
+            setTimeout(() => {
+                showToast('💡 Ctrl+G: Modo presentación | F11: Pantalla Completa', 3500);
+            }, 1000);
+        };
+
+        setInterval(() => {
+            if (isEditMode) {
+                localStorage.setItem('minecraftPresentation', document.getElementById('presentation').innerHTML);
+                localStorage.setItem('customStyles', JSON.stringify(customStyles));
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
